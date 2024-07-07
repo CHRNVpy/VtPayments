@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PAYMENTS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        label {
+            width: 100%;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        select, input[type="date"] {
+            width: calc(50% - 10px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>ПЛАТЕЖИ</h1>
+    <div class="container">
+        <form id="filter-form">
+            <label for="location">Город:</label>
+            <select id="location" name="location">
+                {% for loc in locations %}
+                    <option value="{{ loc[0] }}">{{ loc[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="payment_type">Способ оплаты:</label>
+            <select id="payment_type" name="payment_type">
+                {% for type in payment_types %}
+                    <option value="{{ type[0] }}">{{ type[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="date">Дата:</label>
+            <input type="date" id="date" name="date">
+
+            <button type="submit">Показать</button>
+        </form>
+
+        <table id="results-table">
+            <thead>
+                <tr>
+                    <th>Договор</th>
+                    <th>ФИО</th>
+                    <th>Сумма</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById("filter-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            fetchRecords();
+        });
+
+        async function fetchRecords() {
+            const location = document.getElementById("location").value;
+            const paymentType = document.getElementById("payment_type").value;
+            const date = document.getElementById("date").value;
+
+            let url = `/records/?location_id=${location}&payment_type_id=${paymentType}`;
+            if (date) {
+                url += `&date=${date}`;
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+            const tbody = document.getElementById("results-table").getElementsByTagName("tbody")[0];
+            tbody.innerHTML = "";
+
+            data.forEach(record => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${record.id}</td>
+                    <td>${record.name}</td>
+                    <td>${record.amount}</td>
+                    <td>${record.date ? new Date(record.date).toLocaleString() : ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
