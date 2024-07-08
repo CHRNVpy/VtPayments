@@ -87,8 +87,11 @@
                 {% endfor %}
             </select>
 
-            <label for="date">Дата:</label>
-            <input type="date" id="date" name="date">
+            <label for="start_date">Дата начала:</label>
+            <input type="date" id="start_date" name="start_date">
+
+            <label for="end_date">Дата окончания:</label>
+            <input type="date" id="end_date" name="end_date">
 
             <button type="submit">Показать</button>
         </form>
@@ -116,11 +119,15 @@
         async function fetchRecords() {
             const location = document.getElementById("location").value;
             const paymentType = document.getElementById("payment_type").value;
-            const date = document.getElementById("date").value;
+            const startDate = document.getElementById("start_date").value;
+            const endDate = document.getElementById("end_date").value;
 
             let url = `/records/?location_id=${location}&payment_type_id=${paymentType}`;
-            if (date) {
-                url += `&date=${date}`;
+            if (startDate) {
+                url += `&start_date=${startDate}`;
+            }
+            if (endDate) {
+                url += `&end_date=${endDate}`;
             }
 
             const response = await fetch(url);

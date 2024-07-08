@@ -57,7 +57,7 @@ async def get_payment_types():
                 return result if result else None
 
 
-async def get_payments(payment_type=None, group_id=None, date=None):
+async def get_payments(payment_type=None, group_id=None, start_date=None, end_date=None):
     where_clauses = []
     base_query = '''SELECT 
                   c.title,
@@ -76,8 +76,10 @@ async def get_payments(payment_type=None, group_id=None, date=None):
         where_clauses.append(f"cp.pt = {payment_type}")
     if group_id is not None:
         where_clauses.append(f"c.gr = {group_id}")
-    if date is not None:
-        where_clauses.append(f"DATE(cp.lm) = '{date}'")
+    if start_date is not None:
+        where_clauses.append(f"cp.lm >= '{start_date}'")
+    if end_date is not None:
+        where_clauses.append(f"cp.lm <= '{end_date}'")
 
     if where_clauses:
         where_block = "WHERE " + " AND ".join(where_clauses)
@@ -103,6 +105,6 @@ async def read_root(request: Request):
 
 
 @app.get("/records/", response_model=List[Record])
-async def read_records(location_id: int, payment_type_id: int, date: str = None):
-    records = await get_payments(payment_type_id, location_id, date)
+async def read_records(location_id: int, payment_type_id: int, start_date: str = None, end_date: str = None):
+    records = await get_payments(payment_type_id, location_id, start_date, end_date)
     return records
