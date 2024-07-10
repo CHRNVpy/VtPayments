@@ -59,23 +59,17 @@ async def get_payment_types():
 
 async def get_payments(payment_type=None, group_id=None, start_date=None, end_date=None):
     where_clauses = []
-    base_query = '''SELECT 
-                  c.title,
-                  c.comment AS customer,
-                  cp.summa,
-                  cp.lm 
-                FROM 
-                  contract_payment cp
-                JOIN 
-                  contract c ON c.id = cp.cid
-                {where}
-                ORDER BY 
-                  cp.lm DESC;'''
+    base_query = '''SELECT c.title, c.comment, cp.summa, cp.lm
+                    FROM contract c
+                    INNER JOIN contract_group cg ON (c.gr >> cg.id) & 1 = 1
+                    JOIN contract_payment cp ON cp.cid = c.id
+                    {where}
+                    ORDER BY cp.lm DESC;'''
 
     if payment_type is not None:
         where_clauses.append(f"cp.pt = {payment_type}")
     if group_id is not None:
-        where_clauses.append(f"c.gr = {group_id}")
+        where_clauses.append(f"cg.id = {group_id}")
     if start_date is not None:
         where_clauses.append(f"cp.lm >= '{start_date}'")
     if end_date is not None:
