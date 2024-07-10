@@ -67,6 +67,11 @@
         th {
             background-color: #f2f2f2;
         }
+        #total-sum {
+            text-align: right;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -95,6 +100,8 @@
 
             <button type="submit">Показать</button>
         </form>
+
+        <div id="total-sum"></div>
 
         <table id="results-table">
             <thead>
@@ -133,9 +140,12 @@
             const response = await fetch(url);
             const data = await response.json();
             const tbody = document.getElementById("results-table").getElementsByTagName("tbody")[0];
+            const totalSumElement = document.getElementById("total-sum");
             tbody.innerHTML = "";
 
+            let totalSum = 0;
             data.forEach(record => {
+                totalSum += parseFloat(record.amount);
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${record.id}</td>
@@ -145,7 +155,10 @@
                 `;
                 tbody.appendChild(row);
             });
+
+            totalSumElement.textContent = `Всего платежей на сумму: ${totalSum.toFixed(2)}`; // Display total sum above the table
         }
     </script>
 </body>
 </html>
+
